@@ -19,11 +19,13 @@ class Zot : public Foo {
     throw std::exception("WHAT!?");
   };
 
-  JsiValue *evaluateJavaScript(const char *buffer,
-                               const char *sourceURL) override {
-    auto value = new JsiValueImpl();
+  Value evaluateJavaScript(const char *buffer, const char *sourceURL) override {
+    Value value;
+    value.data_.pointer = new JsiValueImpl();
     return value;
   }
+
+  int hasDefaultImpl() override { return 43; }
 };
 
 void *operator new(std::size_t sz) {

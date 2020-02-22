@@ -12,11 +12,11 @@ protected:
 public:
   Foo(::Foo *foo) : _foo(foo) {}
   void Bar() { _foo->Bar(); }
+  int hasDefaultImpl() { return _foo->hasDefaultImpl(); }
 
-  inline std::shared_ptr<JsiValue>
+  inline Value
   evaluateJavaScript(const std::string &buffer, const std::string &sourceURL) {
-    return std::shared_ptr<JsiValue>(
-        _foo->evaluateJavaScript(buffer.c_str(), sourceURL.c_str()));
+    return _foo->evaluateJavaScript(buffer.c_str(), sourceURL.c_str());
   }
 };
 
