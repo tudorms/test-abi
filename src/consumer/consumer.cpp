@@ -11,6 +11,16 @@ int main()
 	{
 		f->Bar();
 	}
+	catch (JSError& ex)
+	{
+		auto val = ex.value();
+
+		std::puts(ex.getMessage());
+	}
+	catch (JSIException& ex)
+	{
+		std::puts(ex.what());
+	}
 	catch (std::exception& ex)
 	{
 		std::puts(ex.what());

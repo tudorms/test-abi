@@ -10,7 +10,8 @@ goto buildexe
 
 :clang
 REM the -g -gcodeview options add PDB support but significantly bloat the binary
-clang++ -nostdinc++ -stdlib=libc++ ..\src\library\library.cpp -Id:\React\libc++\include\ -Ld:\React\libc++\out\lib\ -l c++.lib -shared -o dll.dll -g -gcodeview
+REM -fvisibility-inlines-hidden for exported inlines? (JSError)
+clang++ -nostdinc++ -D BUILDING_DLL -stdlib=libc++ ..\src\library\library.cpp -Id:\React\libc++\include\ -Ld:\React\libc++\out\lib\ -l c++.lib -shared -o dll.dll -g -gcodeview
 goto buildexe
 
 :buildexe
