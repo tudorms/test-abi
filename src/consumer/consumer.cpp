@@ -1,15 +1,40 @@
-#include "wrapper.h"
+#include <memory>
+#include <string>
 
-int main() {
-  auto f = Wrapped::MakeFoo();
-  try {
-  f->Bar();
-  }
-  catch(std::exception& ex) {
-    std::puts(ex.what());
-  }
-  auto result = f->evaluateJavaScript("test", "url");
+#include "..\public.h"
 
-  std::printf("result->isNumber = %s\n", result.data_.pointer->isNumber() ? "yes" :"no");
-  std::printf("exported = %d\n", f->hasDefaultImpl());
+int main()
+{
+	//auto f = Wrapped::MakeFoo();
+	std::unique_ptr<Foo> f { MakeFoo() };
+	try
+	{
+		f->Bar();
+	}
+	catch (std::exception& ex)
+	{
+		std::puts(ex.what());
+	}
+	auto result = f->evaluateJavaScript("test", "url");
+
+	std::printf("result->isNumber = %s\n", result.data_.pointer->isNumber() ? "yes" : "no");
+	std::printf("exported = %d\n", f->hasDefaultImpl());
+
+	std::puts("<< Block starts");
+	{
+		auto as_string = result.data_.pointer->toString();
+		std::string valReconstructedCopy = as_string; // makes an explicit copy of the character buffer
+		std::printf("as string = %s\n", valReconstructedCopy.c_str());
+
+		std::string_view valROView = as_string; // only valid as long as SFINAE as_string is in scope
+		std::printf("as string_view = %s\n", valROView.data()); // .data() only safe if string is known to be nul-terminated
+	}
+	std::puts("<< Block ends");
+
+	result.data_.pointer->invalidate();
+
+	std::printf("call with a lambda = %d\n", f->receivesFunction([](size_t a, size_t b)
+	{
+		return a * b;
+	}));
 }
