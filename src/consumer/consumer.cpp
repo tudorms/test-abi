@@ -3,6 +3,25 @@
 
 #include "..\public.h"
 
+class StringBuffer : public Buffer
+{
+public:
+	StringBuffer(std::string s) : s_(std::move(s))
+	{
+	}
+	size_t size() const override
+	{
+		return s_.size();
+	}
+	const uint8_t* data() const override
+	{
+		return reinterpret_cast<const uint8_t*>(s_.data());
+	}
+
+private:
+	std::string s_;
+};
+
 int main()
 {
 	//auto f = Wrapped::MakeFoo();
@@ -25,6 +44,9 @@ int main()
 	{
 		std::puts(ex.what());
 	}
+
+	f->evaluateBuffer(std::make_unique<StringBuffer>("Something"));
+
 	auto result = f->evaluateJavaScript("test", "url");
 
 	std::printf("result->isNumber = %s\n", result.data_.pointer->isNumber() ? "yes" : "no");

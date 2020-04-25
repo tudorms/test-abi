@@ -136,6 +136,40 @@ public:
 using HostFunctionType = std::function<size_t(size_t a, size_t b)>;
 using CHostFunctionType = size_t(void*, size_t, size_t);
 
+class Buffer
+{
+public:
+	virtual ~Buffer()
+	{
+		std::puts("~Buffer");
+	}
+
+	virtual size_t size() const = 0;
+	virtual const uint8_t* data() const = 0;
+};
+
+class ABIBuffer : public Buffer
+{
+public:
+	ABIBuffer(std::shared_ptr<Buffer> buffer) :
+		buffer_(std::move(buffer))
+	{
+		std::puts("ABIBuffer");
+	}
+
+	virtual size_t size() const override
+	{
+		return buffer_->size();
+	}
+
+	virtual const uint8_t* data() const override
+	{
+		return buffer_->data();
+	}
+private:
+	std::shared_ptr<Buffer> buffer_;
+};
+
 struct Foo
 {
 protected:
@@ -148,11 +182,9 @@ public:
 	virtual Value evaluateJavaScript(const char* buffer,
 		const char* sourceURL) = 0;
 
-	virtual size_t receivesCFunction(CHostFunctionType* funcPointer, void* pv) = 0;
-
-	static size_t std_function_caller(void* fn, size_t a, size_t b)
+	Value evaluateBuffer(const std::shared_ptr<Buffer>& buffer)
 	{
-		return (*static_cast<HostFunctionType*>(fn))(a, b);
+		return evaluateBuffer(new ABIBuffer { std::move(buffer) });
 	}
 
 	size_t receivesFunction(HostFunctionType fn)
@@ -163,6 +195,17 @@ public:
 	virtual int hasDefaultImpl()
 	{
 		return 42;
+	}
+
+protected:
+	// This function takes ownership of the given Buffer instance
+	virtual Value evaluateBuffer(Buffer* buffer) = 0;
+
+	virtual size_t receivesCFunction(CHostFunctionType* funcPointer, void* pv) = 0;
+
+	static size_t std_function_caller(void* fn, size_t a, size_t b)
+	{
+		return (*static_cast<HostFunctionType*>(fn))(a, b);
 	}
 };
 

@@ -31,6 +31,8 @@ public:
 
 class Zot : public Foo
 {
+	std::shared_ptr<Buffer> _buffer;
+
 	~Zot()
 	{}
 
@@ -50,6 +52,17 @@ class Zot : public Foo
 	{
 		Value value;
 		value.data_.pointer = new JsiValueImpl();
+		return value;
+	}
+
+	Value evaluateBuffer(Buffer* buffer) override
+	{
+		_buffer.reset(buffer);
+		Value value;
+		value.data_.boolean = true;
+
+		std::puts((const char*)(buffer->data()));
+
 		return value;
 	}
 
